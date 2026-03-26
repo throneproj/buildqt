@@ -59,9 +59,9 @@ jobs:
         path: Qt_${{env.QT_VERSION}}.7z
 
     - name: Release
-        uses: svenstaro/upload-release-action@master
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: Qt_${{env.QT_VERSION}}
-          file: Qt_${{env.QT_VERSION}}.7z
-          overwrite: true
+      uses: svenstaro/upload-release-action@master
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: Qt_${{env.QT_VERSION}}
+        file: Qt_${{env.QT_VERSION}}.7z
+        overwrite: true
