@@ -27,7 +27,7 @@ jobs:
     - name: Setup vsdevenv
       uses: seanmiddleditch/gha-setup-vsdevenv@master
 
-    - name: Build Qt
+    - name: Download Qt
       shell: bash
       run: |
         cd ..
@@ -49,7 +49,9 @@ jobs:
         curl -L -o openssl.7z https://github.com/throneproj/env_windows_legacy/releases/download/latest/openssl-msvc.7z
         7z x openssl.7z
 
-        cmd.exe /c "call \"$GITHUB_WORKSPACE/buildqt.bat\" ${{env.QT_VERSION}}"
+    - name: Build Qt
+      shell: bash
+      run: buildqt.bat ${{env.QT_VERSION}}
 
     - name: Package binaries
       run: |
