@@ -36,7 +36,7 @@ jobs:
         mkdir -p ${{env.QT_VERSION}}
         mkdir -p Qt
 
-        SHORT_VER="${env.QT_VERSION%.*}"
+        SHORT_VER="${${{ env.QT_VERSION }}%.*}"
         curl -L -o qtbase-everywhere-src.zip https://download.qt.io/official_releases/qt/${SHORT_VER}/${{env.QT_VERSION}}/submodules/qtbase-everywhere-src-${{env.QT_VERSION}}.zip
         unzip -q qtbase-everywhere-src.zip -d ./${{env.QT_VERSION}}
         curl -L -o qttools-everywhere-src.zip https://download.qt.io/official_releases/qt/${SHORT_VER}/${{env.QT_VERSION}}/submodules/qttools-everywhere-src-${{env.QT_VERSION}}.zip
