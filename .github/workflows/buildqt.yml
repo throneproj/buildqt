@@ -8,7 +8,8 @@ env:
 jobs:
   windows_msvc_static_release:
     runs-on: windows-latest
-
+    permissions:
+      contents: write
     steps:
     - name: Checkout repository
       uses: actions/checkout@master
