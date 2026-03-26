@@ -28,6 +28,7 @@ jobs:
       uses: seanmiddleditch/gha-setup-vsdevenv@master
 
     - name: Build Qt
+      shell: bash
       run: |
         cd ..
         mkdir -p Qt
