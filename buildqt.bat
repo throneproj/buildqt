@@ -5,7 +5,7 @@ SET QT_VERSION=%1
 
 CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
-SET QT_PATH=D:\a\buildqt\Qt
+SET QT_PATH=%GITHUB_WORKSPACE%\..\Qt
 
 SET SRC_qtbase="%QT_PATH%\%QT_VERSION%\qtbase-everywhere-src-%QT_VERSION%"
 SET SRC_qttools="%QT_PATH%\%QT_VERSION%\qttools-everywhere-src-%QT_VERSION%"
