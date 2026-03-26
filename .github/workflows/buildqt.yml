@@ -50,7 +50,7 @@ jobs:
         7z x openssl.7z
 
     - name: Build Qt
-      shell: bash
+      shell: cmd
       run: buildqt.bat ${{env.QT_VERSION}}
 
     - name: Package binaries
