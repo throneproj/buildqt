@@ -49,7 +49,7 @@ jobs:
         curl -L -o openssl.7z https://github.com/throneproj/env_windows_legacy/releases/download/latest/openssl-msvc.7z
         7z x openssl.7z
 
-        cmd.exe /c "call `"D:\a\buildqt\buildqt\buildqt.bat`" ${{env.QT_VERSION}}"
+        cmd.exe /c "call \"D:/a/buildqt/buildqt/buildqt.bat\" ${{env.QT_VERSION}}"
 
     - name: Package binaries
       run: |
