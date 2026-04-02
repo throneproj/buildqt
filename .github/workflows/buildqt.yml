@@ -40,6 +40,8 @@ jobs:
 
     - name: Setup vsdevenv
       uses: seanmiddleditch/gha-setup-vsdevenv@master
+      with:
+        arch: ${{ env.QT_ARCHITECTURE }}
 
     - name: Download Qt
       shell: bash
