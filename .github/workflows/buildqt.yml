@@ -19,6 +19,7 @@ jobs:
             arch: x64
           - os: windows-11-arm
             arch: arm64
+      fail-fast: false
     runs-on: ${{matrix.os}}
     permissions:
       contents: write
@@ -27,7 +28,7 @@ jobs:
       uses: actions/checkout@master
 
     - name: Install MSVC compiler
-      uses: ilammy/msvc-dev-cmd@master
+      uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: ${{ matrix.arch }}
 
