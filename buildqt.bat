@@ -1,8 +1,6 @@
 @chcp 65001
 @cd /d %~dp0
 
-CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %QT_ARCHITECTURE%
-
 for /f "delims=" %%i in ("%GITHUB_WORKSPACE%\..\Qt") do set "QT_PATH=%%~fi"
 
 SET SRC_qtbase="%QT_PATH%\%QT_VERSION%\qtbase-everywhere-src-%QT_VERSION%"
