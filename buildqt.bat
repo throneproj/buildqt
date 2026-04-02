@@ -1,9 +1,7 @@
 @chcp 65001
 @cd /d %~dp0
 
-SET QT_VERSION=%1
-
-CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
+CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %QT_ARCHITECTURE%
 
 for /f "delims=" %%i in ("%GITHUB_WORKSPACE%\..\Qt") do set "QT_PATH=%%~fi"
 
