@@ -51,7 +51,7 @@ jobs:
         unzip -q qttranslations-everywhere-src.zip -d ./${{ env.QT_VERSION }}
         curl -L -o qtsvg-everywhere-src.zip https://download.qt.io/official_releases/qt/${SHORT_VER}/${{ env.QT_VERSION }}/submodules/qtsvg-everywhere-src-${{ env.QT_VERSION }}.zip
         unzip -q qtsvg-everywhere-src.zip -d ./${{ env.QT_VERSION }}
-        curl -L -o openssl.7z https://github.com/throneproj/env_windows_legacy/releases/download/latest/openssl-msvc-${{ matrix.arch }}.7z
+        curl -L -o openssl.7z https://github.com/throneproj/env_windows_legacy/releases/download/latest/openssl-${{ matrix.arch }}.7z
         7z x openssl.7z
 
     - name: Build Qt
@@ -60,18 +60,17 @@ jobs:
 
     - name: Package binaries
       run: |
-        7z a Qt_${{ env.QT_VERSION }}.7z ../Qt/Qt -mx=9
+        7z a Qt_${{ env.QT_VERSION }}_${{ matrix.arch }}.7z ../Qt/Qt -mx=9
 
     - uses: actions/upload-artifact@master
       with:
-        name: Qt_${{ env.QT_VERSION }}
-        path: Qt_${{ env.QT_VERSION }}.7z
+        name: Qt_${{ env.QT_VERSION }}_${{ matrix.arch }}
+        path: Qt_${{ env.QT_VERSION }}_${{ matrix.arch }}.7z
 
     - name: Release
       uses: svenstaro/upload-release-action@master
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         tag: Qt_${{ env.QT_VERSION }}
-        file: Qt_${{ env.QT_VERSION }}.7z
-        asset_name: Qt_${{ env.QT_VERSION }}_${{ matrix.arch }}.7z
+        file: Qt_${{ env.QT_VERSION }}_${{ matrix.arch }}.7z
         overwrite: true
