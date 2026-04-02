@@ -16,7 +16,6 @@ on:
 
 env:
   QT_VERSION: ${{ github.event.inputs.version }}
-  QT_ARCHITECTURE: ${{ github.event.inputs.architecture == 'x64' && 'x64' || 'x64_arm64' }}
 
 jobs:
   windows_msvc_static_release:
@@ -41,7 +40,7 @@ jobs:
     - name: Setup vsdevenv
       uses: seanmiddleditch/gha-setup-vsdevenv@master
       with:
-        arch: ${{ env.QT_ARCHITECTURE }}
+        arch: ${{ github.event.inputs.architecture }}
 
     - name: Download Qt
       shell: bash
