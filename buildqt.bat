@@ -25,7 +25,7 @@ cd ..
 ::qttools
 mkdir build-qttools
 cd build-qttools
-cmake %SRC_qttools%\CMakeLists.txt -G "Ninja" -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%INSTALL_DIR%\lib\cmake"
+cmake %SRC_qttools%\CMakeLists.txt -G "Ninja" -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%INSTALL_DIR%\lib\cmake"
 cmake --build . --parallel
 cmake --install .
 cd ..
@@ -33,7 +33,7 @@ cd ..
 ::qttranslations
 mkdir build-qttranslations
 cd build-qttranslations
-cmake %SRC_qttranslations%\CMakeLists.txt -G "Ninja" -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%INSTALL_DIR%\lib\cmake"
+cmake %SRC_qttranslations%\CMakeLists.txt -G "Ninja" -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%INSTALL_DIR%\lib\cmake"
 cmake --build . --parallel
 cmake --install .
 cd ..
@@ -41,7 +41,7 @@ cd ..
 ::qtsvg
 mkdir build-qtsvg
 cd build-qtsvg
-cmake %SRC_qtsvg%\CMakeLists.txt -G "Ninja" -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%INSTALL_DIR%\lib\cmake"
+cmake %SRC_qtsvg%\CMakeLists.txt -G "Ninja" -DCMAKE_INSTALL_PREFIX=%INSTALL_DIR% -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%INSTALL_DIR%\lib\cmake"
 cmake --build . --parallel
 cmake --install .
 cd ..
