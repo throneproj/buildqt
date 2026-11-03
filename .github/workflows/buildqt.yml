@@ -6,12 +6,17 @@ on:
       version:
         description: "Qt version"
         required: true
+      targets:
+        description: "Targets to build (windows, linux)"
+        required: true
+        default: "windows linux"
 
 env:
   QT_VERSION: ${{ github.event.inputs.version }}
 
 jobs:
   windows_msvc_static_release:
+    if: contains(github.event.inputs.targets, 'windows')
     strategy:
       matrix:
         include:
@@ -28,9 +33,23 @@ jobs:
       uses: actions/checkout@master
 
     - name: Install MSVC compiler
-      uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: ${{ matrix.arch }}
+      shell: pwsh
+      env:
+        MSVC_ARCH: ${{ matrix.arch }}
+      run: |
+        $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -prerelease -property installationPath
+        if (-not $vs) { throw 'Visual Studio not found' }
+        # A wrapper script keeps the quoted path away from PowerShell's cmd.exe argument quoting.
+        $bat = Join-Path $env:RUNNER_TEMP 'vcvars.cmd'
+        Set-Content -LiteralPath $bat -Encoding ascii -Value "@call `"$vs\VC\Auxiliary\Build\vcvarsall.bat`" $env:MSVC_ARCH >nul && set"
+        $vars = & $bat
+        # vcvarsall exits 0 even when it rejects the architecture.
+        if (-not ($vars -ceq "VSCMD_ARG_TGT_ARCH=$env:MSVC_ARCH")) { throw "vcvarsall.bat $env:MSVC_ARCH did not set up the $env:MSVC_ARCH tools" }
+        $changed = foreach ($line in $vars) {
+          $name, $value = $line -split '=', 2
+          if ($null -ne $value -and $value -cne [Environment]::GetEnvironmentVariable($name)) { "$name=$value" }
+        }
+        Add-Content -LiteralPath $env:GITHUB_ENV -Value $changed
 
     - name: Download Qt
       shell: bash
@@ -73,4 +92,93 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         tag: Qt_${{ env.QT_VERSION }}
         file: Qt_${{ env.QT_VERSION }}_${{ matrix.arch }}.7z
+        overwrite: true
+
+  linux_gcc_shared_release:
+    if: contains(github.event.inputs.targets, 'linux')
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: x86_64
+            container: quay.io/pypa/manylinux_2_28_x86_64:2026.11.01-2
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+            container: quay.io/pypa/manylinux_2_28_aarch64:2026.11.01-2
+      fail-fast: false
+    runs-on: ${{matrix.os}}
+    container: ${{ matrix.container }}
+    permissions:
+      contents: write
+    env:
+      OPENSSL_VERSION: "3.5.9"
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7.0.1
+
+    - name: Install build dependencies
+      run: |
+        dnf -y install dnf-plugins-core epel-release
+        dnf config-manager --set-enabled powertools
+        dnf -y install perl xz \
+          libX11-devel libxcb-devel xcb-util-devel xcb-util-cursor-devel xcb-util-image-devel \
+          xcb-util-keysyms-devel xcb-util-renderutil-devel xcb-util-wm-devel \
+          libxkbcommon-devel libxkbcommon-x11-devel mesa-libGL-devel mesa-libEGL-devel libdrm-devel \
+          wayland-devel fontconfig-devel freetype-devel zlib-devel dbus-devel glib2-devel gtk3-devel at-spi2-core-devel
+        pipx install ninja==1.13.2
+
+    - name: Download Qt
+      run: |
+        cd ..
+        mkdir -p Qt
+        cd Qt
+        mkdir -p ${{ env.QT_VERSION }}
+        mkdir -p Qt
+
+        FULL_VER="${{ env.QT_VERSION }}"
+        SHORT_VER="${FULL_VER%.*}"
+        for mod in qtbase qtsvg qtwayland qttools; do
+          curl -fL -o $mod-everywhere-src.tar.xz https://download.qt.io/official_releases/qt/${SHORT_VER}/${{ env.QT_VERSION }}/submodules/$mod-everywhere-src-${{ env.QT_VERSION }}.tar.xz
+          tar -xJf $mod-everywhere-src.tar.xz -C ./${{ env.QT_VERSION }}
+        done
+        curl -fL -o openssl.tar.gz https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz
+        tar -xzf openssl.tar.gz -C ./${{ env.QT_VERSION }}
+
+    - name: Build Qt
+      run: bash buildqt_linux.sh
+
+    - name: Package binaries
+      run: |
+        XZ_OPT="-9 -T0" tar -C ../Qt -cJf Qt_${{ env.QT_VERSION }}_linux_${{ matrix.arch }}.tar.xz Qt
+
+    - uses: actions/upload-artifact@v7.0.2
+      with:
+        name: Qt_${{ env.QT_VERSION }}_linux_${{ matrix.arch }}
+        path: Qt_${{ env.QT_VERSION }}_linux_${{ matrix.arch }}.tar.xz
+
+    - name: Unpack package for checks
+      run: |
+        rm -rf ../check
+        mkdir ../check
+        tar -xJf Qt_${{ env.QT_VERSION }}_linux_${{ matrix.arch }}.tar.xz -C ../check
+        test "$(ls -A ../check)" = Qt
+
+    - name: Check plugins and libraries
+      run: bash checkqt_linux.sh files ../check/Qt
+
+    - name: Check OpenSSL is linked statically
+      run: bash checkqt_linux.sh openssl ../check/Qt
+
+    - name: Check glibc and libstdc++ floors
+      run: bash checkqt_linux.sh floors ../check/Qt
+
+    - name: Release
+      uses: svenstaro/upload-release-action@master
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: Qt_${{ env.QT_VERSION }}
+        file: Qt_${{ env.QT_VERSION }}_linux_${{ matrix.arch }}.tar.xz
         overwrite: true
