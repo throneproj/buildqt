@@ -44,6 +44,10 @@ make -j"$(nproc)" build_sw
 make install_sw
 
 #qtbase
+# Qt 6.8+ builds localized time-zone names into QtCore (~4 MB); Throne never shows them.
+TZ_LOCALE=""
+IFS=. read -r QT_MAJOR QT_MINOR _ <<<"$QT_VERSION"
+if (( QT_MAJOR * 100 + QT_MINOR >= 608 )); then TZ_LOCALE="-no-feature-timezone_locale"; fi
 mkdir "$BUILD_DIR/qtbase"
 cd "$BUILD_DIR/qtbase"
 "$SRC_qtbase/configure" -prefix "$INSTALL_DIR" -release -shared -opensource -confirm-license \
@@ -51,7 +55,7 @@ cd "$BUILD_DIR/qtbase"
     -no-icu -glib -dbus-linked -gtk -xcb -xkbcommon -feature-wayland -opengl desktop -egl \
     -fontconfig -system-freetype -system-zlib -qt-libpng -qt-libjpeg -qt-pcre -qt-harfbuzz -qt-doubleconversion \
     -openssl-linked -no-feature-openssl-hash -no-feature-gssapi -no-feature-brotli -no-zstd \
-    -no-feature-xcb-sm -no-feature-wayland-server \
+    -no-feature-xcb-sm -no-feature-wayland-server $TZ_LOCALE \
     -- -DOPENSSL_ROOT_DIR="$OPENSSL_DIR" -DOPENSSL_USE_STATIC_LIBS=ON \
     -DCMAKE_MODULE_LINKER_FLAGS="$EXCLUDE_OPENSSL" -DCMAKE_SHARED_LINKER_FLAGS="$EXCLUDE_OPENSSL" \
     -DOpenGL_GL_PREFERENCE=LEGACY
