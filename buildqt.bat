@@ -16,9 +16,10 @@ mkdir "%BUILD_DIR%" && cd /d "%BUILD_DIR%"
 
 ::qtbase
 ::timezone_locale stays on: Qt's Windows time-zone backend fails to compile without it (6.12).
+::-no-freetype only picks the FreeType source and leaves the engine built; -no-feature-freetype drops it.
 mkdir build-qtbase
 cd build-qtbase
-call %SRC_qtbase%\configure.bat -static -static-runtime -release -nomake examples -prefix %INSTALL_DIR% -opensource -confirm-license -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre -no-freetype -opengl desktop -platform win32-msvc -no-schannel -openssl-linked -no-dtls -no-ocsp -- -D OPENSSL_ROOT_DIR="%QT_PATH%/openssl"
+call %SRC_qtbase%\configure.bat -static -static-runtime -release -nomake examples -prefix %INSTALL_DIR% -opensource -confirm-license -qt-libpng -qt-libjpeg -qt-zlib -qt-pcre -no-feature-freetype -opengl desktop -platform win32-msvc -no-schannel -openssl-linked -no-dtls -no-ocsp -- -D OPENSSL_ROOT_DIR="%QT_PATH%/openssl"
 if %errorlevel% neq 0 exit /b 1
 cmake --build . --parallel || exit /b 1
 cmake --install . || exit /b 1
